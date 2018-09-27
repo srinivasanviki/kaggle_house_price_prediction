@@ -8,7 +8,6 @@ quantitative_features=[]
 qualitative_features=[]
 house_attributes=pd.DataFrame(pd.read_csv("/Users/vigneshsrinivasan/kaggle/train.csv"))
 test=pd.DataFrame(pd.read_csv("/Users/vigneshsrinivasan/kaggle/test.csv"))
-house_attributes.de
 
 def plot_corr(df,size=10):
     import seaborn as sns
@@ -209,7 +208,7 @@ house_attributes=house_attributes.rename(index=str, columns={"Condition1": "prxc
                                             "1stFlrSF":"firstflrsf","2ndFlrSF":"secondflrsf",
                                             "3SsnPorch":"threeseasonporcharea"})
 
-test=test.rename(index=str, columns={"Condition1": "prxcond", "Condition2": "prxcondothers",
+test=test.rename(index=int, columns={"Condition1": "prxcond", "Condition2": "prxcondothers",
                                                              "Exterior1st":"extcov","Exterior2nd":"extcovothers",
                                                              "BsmtFinType1":"bsmtrtngfirst","BsmtFinType2":"bsmtrtngsec",
                                                              "BsmtFinSF1":"bsmtfirstsqrfeet","BsmtFinSF2":"bsmtsecondsqrfeet",
@@ -239,12 +238,19 @@ for feature in quantitive_features_selected:
 
 one_hot_encoding(qualitative_extracted_features)
 
+
 train_X=house_attributes[selected_features]
-train_Y=house_attributes['SalePrice']
+target=house_attributes['SalePrice']
 
 one_hot_encoding_test(qualitative_extracted_features)
 test_X=test[selected_features]
 # test_Y=test['SalePrice']
+from sklearn.ensemble import RandomForestRegressor
 
+rf = RandomForestRegressor(n_estimators=100, n_jobs=-1)
+rf.fit(train_X, target)
 
-fit(train_X,train_Y,test_X)
+preds = rf.predict(test_X)
+
+my_submission = pd.DataFrame({'Id': test_X["Id"], 'SalePrice': preds})
+my_submission.to_csv('submission.csv', index=False)
